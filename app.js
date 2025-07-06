@@ -7,7 +7,7 @@ document.getElementById('csvFile').addEventListener('change', (e) => {
   reader.onload = (event) => {
     const text = event.target.result;
     csvData = parseCSV(text);
-    renderProductList(csvData);
+    alert('CSV caricato con successo!');
   };
   reader.readAsText(file, 'ISO-8859-1');
 });
@@ -26,48 +26,54 @@ function parseCSV(text) {
   });
 }
 
-function renderProductList(data) {
-  const container = document.getElementById('productList');
-  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-  container.innerHTML = '';
-  data.filter(p => p.codice.toLowerCase().includes(searchTerm) || p.descrizione.toLowerCase().includes(searchTerm))
-      .forEach(p => {
-        const div = document.createElement('div');
-        div.innerHTML = `<code>${p.codice}</code> — ${p.descrizione} <button onclick='addToTable("${p.codice}")'>+</button>`;
-        container.appendChild(div);
-      });
-}
-
-document.getElementById('searchInput').addEventListener('input', () => renderProductList(csvData));
-
-function addToTable(code) {
+function handleCode(code) {
   const prodotto = csvData.find(p => p.codice === code);
   const tbody = document.querySelector('#itemsTable tbody');
   if (!prodotto) return;
 
   const row = tbody.insertRow();
+  const lordo = prodotto.prezzoLordo;
+
   row.innerHTML = `
     <td>${prodotto.codice}</td>
     <td>${prodotto.descrizione}</td>
-    <td><input type="number" value="1" onchange="recalculate(this)"/></td>
-    <td>€${prodotto.prezzoLordo.toFixed(2)}</td>
-    <td><input type="number" value="0" onchange="recalculate(this)"/>%</td>
-    <td><input type="number" value="${prodotto.prezzoLordo.toFixed(2)}" onchange="recalculate(this)"/></td>
-    <td><input type="number" value="${prodotto.trasporto.toFixed(2)}" onchange="recalculate(this)"/></td>
-    <td><input type="number" value="${prodotto.installazione.toFixed(2)}" onchange="recalculate(this)"/></td>
+    <td><input type="number" value="1" class="qty" /></td>
+    <td>€${lordo.toFixed(2)}</td>
+    <td><input type="number" value="0" class="sconto" /></td>
+    <td><input type="number" value="${lordo.toFixed(2)}" class="netto" /></td>
+    <td><input type="number" value="${prodotto.trasporto.toFixed(2)}" class="trasporto" /></td>
+    <td><input type="number" value="${prodotto.installazione.toFixed(2)}" class="installazione" /></td>
     <td class="totale">€0.00</td>
   `;
-  recalculate(row.querySelector('input'));
+
+  const inputs = row.querySelectorAll('input');
+  inputs.forEach(input => {
+    input.addEventListener('input', () => recalculateRow(row, lordo));
+  });
+
+  recalculateRow(row, lordo);
 }
 
-function recalculate(input) {
-  const row = input.closest('tr');
-  const qty = parseFloat(row.cells[2].querySelector('input').value || 0);
-  const sconto = parseFloat(row.cells[4].querySelector('input').value || 0);
-  const netto = parseFloat(row.cells[5].querySelector('input').value || 0);
-  const trasporto = parseFloat(row.cells[6].querySelector('input').value || 0);
-  const installazione = parseFloat(row.cells[7].querySelector('input').value || 0);
-  const prezzoScontato = netto * (1 - sconto / 100);
-  const totale = (prezzoScontato + trasporto + installazione) * qty;
+function recalculateRow(row, lordo) {
+  const qty = parseFloat(row.querySelector('.qty').value || 0);
+  const scontoInput = row.querySelector('.sconto');
+  const nettoInput = row.querySelector('.netto');
+  const trasporto = parseFloat(row.querySelector('.trasporto').value || 0);
+  const installazione = parseFloat(row.querySelector('.installazione').value || 0);
+
+  let sconto = parseFloat(scontoInput.value || 0);
+  let netto = parseFloat(nettoInput.value || 0);
+
+  const changedInput = document.activeElement;
+
+  if (changedInput === scontoInput) {
+    netto = lordo * (1 - sconto / 100);
+    nettoInput.value = netto.toFixed(2);
+  } else if (changedInput === nettoInput) {
+    sconto = 100 * (1 - netto / lordo);
+    scontoInput.value = sconto.toFixed(2);
+  }
+
+  const totale = (netto + trasporto + installazione) * qty;
   row.querySelector('.totale').textContent = '€' + totale.toFixed(2);
 }

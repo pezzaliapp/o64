@@ -1,20 +1,21 @@
 {
-  "name": "o64",
-  "short_name": "o64",
-  "start_url": "./schedaordine.html",
-  "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#00FF00",
-  "icons": [
-    {
-      "src": "o64-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "o64-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+    "name": "Scheda Ordine",
+    "short_name": "Ordine",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#4CAF50",
+    "description": "Una PWA per creare schede ordine offline",
+    "icons": [
+        {
+            "src": "icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
 }

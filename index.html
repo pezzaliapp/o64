@@ -1,90 +1,1137 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>o64 – Scheda Ordine</title>
-  <link rel="manifest" href="manifest.json">
-  <style>
-    @font-face {
-      font-family: 'C64';
-      src: url('C64_Pro_Mono.ttf') format('truetype');
-    }
-    body {
-      margin: 0;
-      padding: 1em;
-      font-family: 'C64', monospace;
-      background-color: #000;
-      color: #00FF00;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: left;
-    }
-    .container {
-      width: 100%;
-      max-width: 600px;
-      background-color: #000;
-      border: 2px solid #00FF00;
-      padding: 1rem;
-      box-shadow: 0 0 10px #0f0;
-    }
-    h1 {
-      font-size: 1.4rem;
-      margin-bottom: 1rem;
-    }
-    p, li {
-      font-size: 1rem;
-      line-height: 1.4;
-      margin-bottom: 0.6rem;
-    }
-    .install-button {
-      margin-top: 1rem;
-      font-family: 'C64', monospace;
-      background-color: #000;
-      border: 2px solid #00FF00;
-      color: #00FF00;
-      padding: 10px 20px;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    .install-button:hover {
-      background-color: #00FF00;
-      color: #000;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Scheda Ordine / Preventivo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .table-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            width:100%;
+            background-color:#fff;
+            padding:20px;
+            border-radius:8px;
+            box-shadow:0 0 10px rgba(0,0,0,0.1);
+        }
+        h2,h3,h1 { color:#333; }
+        table {
+            width:100%; border-collapse:collapse;
+            margin-bottom:15px; border:1px solid #ccc;
+        }
+        th,td {
+            border:1px solid #ccc;
+            padding:10px;
+            text-align:left;
+            vertical-align:top;
+            font-size:14px;
+        }
+        th { background-color:#f2f2f2; font-weight:bold; }
+        .checkbox-group {
+            display:flex; gap:10px; flex-wrap:wrap;
+        }
+        .add-row-btn,.clear-btn,.pdf-btn,.noleggio-button,.button {
+            margin-top:10px; padding:10px 20px; color:white; border:none; cursor:pointer; border-radius:4px; font-size:14px;
+        }
+        .add-row-btn { background-color:#4CAF50; }
+        .clear-btn { background-color:#f44336; }
+        .pdf-btn { background-color:#007bff; }
+        .noleggio-button { background-color:#ff9800; }
+        .button { background-color:#2196F3; }
+        .product-search-container {
+            margin-top:20px; margin-bottom:20px;
+        }
+        .image-preview {
+            width:100px;height:100px;object-fit:cover;
+            border:1px solid #ccc;border-radius:4px;
+        }
+        .note-section { margin-top:20px; }
+        .note-section label { display:block; margin-bottom:5px; font-weight:bold; }
+        .note-section textarea {
+            width:100%; height:100px; padding:10px; resize:vertical;
+            border:1px solid #ccc; border-radius:4px; font-size:14px;
+        }
+        .installazione-section { margin-top:10px; }
+        .installazione-section label { font-weight:bold; display:block; margin-bottom:5px; }
+        .installazione-cost {
+            margin-top:5px; display:flex; align-items:center; gap:10px;
+        }
+        .installazione-cost input[type="text"] {
+            width:150px; padding:5px; border:1px solid #ccc; border-radius:4px; font-size:14px;
+        }
+        .logo-section { margin-bottom:20px; }
+        .logo-section label { display:block; margin-bottom:5px; font-weight:bold; }
+        #logoPreview {
+            display:block; max-height:80px;
+            margin-top:10px; border:1px solid #ccc; border-radius:4px;
+        }
+        @media (max-width:768px) {
+            .table-container { max-width:100%; padding:10px; }
+            th, td { font-size:12px; padding:6px; }
+            .add-row-btn,.clear-btn,.pdf-btn,.noleggio-button,.button {
+                padding:6px 12px; font-size:12px;
+            }
+        }
+        .sconto-option,.trasporto-option,.installazione-option,.noleggio-option,.netto-option {
+            margin-top:20px; text-align:left;
+        }
+        .noleggio-container {
+            max-width:1000px; margin:40px auto; padding:20px;
+            border:1px solid #ccc; border-radius:8px; background-color:#fff;
+            box-shadow:0 0 10px rgba(0,0,0,0.1);
+        }
+        .noleggio-container h1 { text-align:center; margin-bottom:20px; color:#333; }
+        .input-group { display:flex; align-items:center; gap:10px; margin-bottom:15px; }
+        .input-group label { flex:1; font-weight:bold; color:#333; }
+        .input-group input, .input-group select {
+            flex:2; padding:8px; border:1px solid #ccc; border-radius:4px; font-size:14px;
+        }
+        .results p { font-size:14px; margin:5px 0; color:#333; }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Scheda Ordine – PWA C64</h1>
-    <p>READY.</p>
-    <p>Benvenuto nel sistema scheda ordine.<br>
-    Questa app funziona anche offline.</p>
-    <p>ISTRUZIONI PER INSTALLARE:</p>
-    <ul>
-      <li><b>Mobile:</b> Menu → "Aggiungi a Home"</li>
-      <li><b>Desktop:</b> Icona nella barra indirizzi</li>
-    </ul>
-    <p>DIGITA <code>RUN</code> PER AVVIARE</p>
-    <button class="install-button" onclick="openApp()">RUN</button>
-  </div>
+    <div class="table-container" id="orderForm">
+        <h2>
+            Scheda Ordine
+            <label style="font-weight: normal; margin-left:20px;">
+                <input type="checkbox" id="isPreventivo" onclick="togglePreventivo()"> Preventivo
+            </label>
+        </h2>
 
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-      .then(registration => {
-        console.log('✅ Service Worker registrato:', registration.scope);
-      })
-      .catch(error => {
-        console.error('❌ Errore Service Worker:', error);
-      });
-    }
+        <div class="logo-section">
+            <label for="logoInput">Carica il Logo:</label>
+            <input type="file" id="logoInput" accept="image/*">
+            <img id="logoPreview" src="" alt="Anteprima Logo" style="display:none;max-width:200px;margin-top:10px;">
+        </div>
 
-    function openApp() {
-      window.location.href = "schedaordine.html";
-    }
-  </script>
+        <table>
+            <tr>
+                <td>Data</td>
+                <td><input type="date" name="data" style="width:100%;" id="orderDate"></td>
+                <td>Ns. riferimento</td>
+                <td><input type="text" name="ns_riferimento" style="width:100%;" id="referenceNumber"></td>
+            </tr>
+            <tr>
+                <td>Cliente</td>
+                <td colspan="3"><input type="text" name="cliente" style="width:100%;" id="clientName"></td>
+            </tr>
+            <tr>
+                <td>Luogo destinazione se diverso</td>
+                <td colspan="3"><input type="text" name="luogo_destinazione" style="width:100%;" id="destinationPlace"></td>
+            </tr>
+            <tr>
+                <td>Pagamento</td>
+                <td colspan="3"><input type="text" name="pagamento" style="width:100%;" id="paymentTerms"></td>
+            </tr>
+        </table>
+
+        <table>
+            <tr>
+                <td>Trasporto</td>
+                <td colspan="3">
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="trasporto" value="mittente" id="transportSender"> Mittente</label>
+                        <label><input type="checkbox" name="trasporto" value="destinatario" id="transportReceiver"> Destinatario</label>
+                        <label><input type="checkbox" name="trasporto" value="vettore" id="transportCarrier"> Vettore</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Porto</td>
+                <td colspan="3">
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="porto" value="franco" id="portoFranco"> Franco</label>
+                        <label><input type="checkbox" name="porto" value="assegnato" id="portoAssigned"> Assegnato</label>
+                        <label><input type="checkbox" name="porto" value="franco_con_addebito" id="portoWithCharge"> Franco c/add</label>
+                        <input type="text" name="porto_value" id="portoValue" style="width:100px;" placeholder="Valore" readonly />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Installazione</td>
+                <td colspan="3">
+                    <div class="installazione-section">
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" name="installazione" value="no" id="installazioneNo"> NO</label>
+                            <label><input type="checkbox" name="installazione" value="si_interno" id="installazioneSiInterno"> SI con SERVICE INTERNO</label>
+                            <label><input type="checkbox" name="installazione" value="si_esterno" id="installazioneSiEsterno"> SI con SERVICE ESTERNO</label>
+                        </div>
+                        <div class="installazione-cost">
+                            <label for="installazioneCosto">Costo:</label>
+                            <input type="text" name="installazione_costo" id="installazioneCosto" placeholder="€0,00" readonly>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Il cliente ha il muletto per lo scarico?</td>
+                <td colspan="3">
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="muletto" value="si" id="mulettoSi"> SI</label>
+                        <label><input type="checkbox" name="muletto" value="no" id="mulettoNo"> NO</label>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <div class="product-search-container">
+            <label for="csvFile">Carica un file CSV</label>
+            <input type="file" id="csvFile" accept=".csv">
+            <br><br>
+            <label for="searchProduct">Seleziona Prodotto</label>
+            <input type="text" id="searchProduct" placeholder="Cerca per codice o descrizione" oninput="filterProducts()">
+            <select id="productList" size="5" style="width:100%;" onchange="selectProduct()"></select>
+        </div>
+
+        <table id="itemsTable">
+            <thead>
+                <tr>
+                    <th>Articolo</th>
+                    <th>Descrizione</th>
+                    <th>Q.tà</th>
+                    <th>Prezzo Unitario</th>
+                    <th>Sconto %</th>
+                    <th>Prezzo Netto</th>
+                    <th>Trasporto</th>
+                    <th>Installazione</th>
+                    <th>Prezzo Totale</th>
+                    <th>Data Consegna</th>
+                    <th>Rimuovi</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <button type="button" class="add-row-btn" onclick="addRow()">Aggiungi Riga Articolo</button>
+        <p><strong>Totale Articoli:</strong> <span id="totalArticlesValue">€0,00</span></p>
+
+        <h3>Immagine e Link per Articolo</h3>
+        <table id="imageLinkTable">
+            <thead>
+                <tr>
+                    <th>Articolo</th>
+                    <th>Immagine</th>
+                    <th>Link</th>
+                    <th>Rimuovi</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <div class="note-section">
+            <label for="orderNote">Nota:</label>
+            <textarea id="orderNote" placeholder="Inserisci una nota qui..."></textarea>
+        </div>
+
+        <!-- RIMOSSA LA SEZIONE FIRMA -->
+
+        <div class="sconto-option">
+            <label><input type="checkbox" id="omitSconto" checked> Includi la colonna "Sconto %"</label>
+        </div>
+        <div class="trasporto-option">
+            <label><input type="checkbox" id="omitTrasporto" checked> Includi la colonna "Trasporto"</label>
+        </div>
+        <div class="installazione-option">
+            <label><input type="checkbox" id="omitInstallazione" checked> Includi la colonna "Installazione"</label>
+        </div>
+        <div class="netto-option">
+            <label><input type="checkbox" id="omitNetto" checked> Includi la colonna "Prezzo Netto"</label>
+        </div>
+        <div class="noleggio-option">
+            <label><input type="checkbox" id="omitNoleggio" checked> Includi il "Report del Noleggio"</label>
+        </div>
+
+        <button type="button" class="pdf-btn" onclick="generatePDF()">Genera PDF</button>
+    </div>
+
+    <div class="noleggio-container">
+        <h1>Simulatore Calcolo Canoni Locazione</h1>
+        <div class="input-group">
+            <label for="importo">Inserisci importo (o usa il totale del preventivo):</label>
+            <input type="text" id="importo" placeholder="Inserisci importo" />
+            <button class="noleggio-button" onclick="useTotal()">Usa Totale Preventivo</button>
+        </div>
+        <div class="input-group">
+            <label for="durata">Durata:</label>
+            <select id="durata">
+                <option value="12">12 mesi</option>
+                <option value="18">18 mesi</option>
+                <option value="24" selected>24 mesi</option>
+                <option value="36">36 mesi</option>
+                <option value="48">48 mesi</option>
+                <option value="60">60 mesi</option>
+            </select>
+        </div>
+        <button class="button" onclick="calcola()">Calcola</button>
+        <div class="results">
+            <p>Rata mensile: <span id="rataMensile">0,00 €</span></p>
+            <p>Spese di contratto: <span id="speseContratto">0,00 €</span></p>
+            <p>Costo giornaliero: <span id="costoGiornaliero">0,00 €</span></p>
+            <p>Costo orario: <span id="costoOrario">0,00 €</span></p>
+        </div>
+    </div>
+
+    <!-- Librerie jsPDF e Autotable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        let products = [];
+        let filteredProducts = [];
+        let logoDataURL = "";
+        let logoWidth = 0;
+        let logoHeight = 0;
+        let isUpdating = false;
+
+        document.getElementById('csvFile').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const text = e.target.result;
+                    parseCSV(text);
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        function parseCSV(data) {
+            const lines = data.trim().split("\n");
+            products = [];
+            for (let i = 1; i < lines.length; i++) {
+                const row = lines[i].split(";");
+                if (row.length >= 5) {
+                    const product = {
+                        code: row[0].trim(),
+                        description: row[1].trim(),
+                        price: parseEuropeanFloat(row[2].trim()) || 0,
+                        installazione: parseEuropeanFloat(row[3].trim()) || 0, // Invertito
+                        trasporto: parseEuropeanFloat(row[4].trim()) || 0 // Invertito
+                    };
+                    products.push(product);
+                }
+            }
+            filteredProducts = products;
+            updateProductList();
+            calculateTotals();
+        }
+
+        function filterProducts() {
+            const query = document.getElementById("searchProduct").value.toLowerCase();
+            filteredProducts = products.filter(product =>
+                product.code.toLowerCase().includes(query) || product.description.toLowerCase().includes(query)
+            );
+            updateProductList();
+        }
+
+        function updateProductList() {
+            const productList = document.getElementById("productList");
+            productList.innerHTML = "";
+            filteredProducts.forEach((product, index) => {
+                const option = document.createElement("option");
+                option.value = index;
+                option.textContent = `${product.code} - ${product.description}`;
+                productList.appendChild(option);
+            });
+        }
+
+        function selectProduct() {
+            const productList = document.getElementById("productList");
+            const selectedIndex = productList.selectedIndex;
+            if (selectedIndex !== -1) {
+                const product = filteredProducts[productList.options[selectedIndex].value];
+                addRow();
+                const currentRow = document.querySelector("#itemsTable tbody tr:last-child");
+                if (product && currentRow) {
+                    currentRow.querySelector('.article-code').value = product.code;
+                    currentRow.querySelector('.article-description').value = product.description;
+                    currentRow.querySelector('.article-price').value = formatEuro(product.price);
+
+                    if (document.getElementById('portoWithCharge').checked) {
+                        currentRow.querySelector('.article-trasporto').value = formatEuro(product.trasporto);
+                        currentRow.querySelector('.article-trasporto').disabled = false;
+                    } else {
+                        currentRow.querySelector('.article-trasporto').value = '';
+                        currentRow.querySelector('.article-trasporto').disabled = true;
+                    }
+
+                    if (document.getElementById('installazioneSiInterno').checked || document.getElementById('installazioneSiEsterno').checked) {
+                        currentRow.querySelector('.article-installazione').value = formatEuro(product.installazione);
+                        currentRow.querySelector('.article-installazione').disabled = false;
+                    } else {
+                        currentRow.querySelector('.article-installazione').value = '';
+                        currentRow.querySelector('.article-installazione').disabled = true;
+                    }
+
+                    calculateTotal(currentRow.querySelector('.article-price'));
+                    addImageLinkRow(product.code);
+                }
+                calculateTotals();
+            }
+        }
+
+        function addRow() {
+            const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
+
+            newRow.innerHTML = `
+                <td><input type="text" name="articolo" class="article-code" style="width:100%;"></td>
+                <td><input type="text" name="descrizione" class="article-description" style="width:100%;"></td>
+                <td><input type="number" name="quantita" min="1" value="1" style="width:100%;" oninput="calculateTotal(this)"></td>
+                <td><input type="text" name="prezzo_unitario" class="article-price" style="width:100%;" oninput="calculateTotal(this)"></td>
+                <td><input type="number" name="sconto" min="0" max="100" step="0.01" value="0" style="width:100%;" oninput="calculateTotal(this)"></td>
+                <td><input type="text" name="prezzo_netto" class="article-net-price" style="width:100%;" oninput="calculateTotal(this)"></td>
+                <td><input type="text" name="trasporto" class="article-trasporto" style="width:100%;" oninput="calculateTotal(this)" disabled></td>
+                <td><input type="text" name="installazione" class="article-installazione" style="width:100%;" oninput="calculateTotal(this)" disabled></td>
+                <td><input type="text" name="prezzo_totale" class="article-total-price" style="width:100%;" readonly></td>
+                <td><input type="date" name="data_consegna" style="width:100%;" onchange="calculateTotal(this)"></td>
+                <td><button type="button" onclick="removeRow(this)" style="background-color:#f44336;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;">Rimuovi</button></td>
+            `;
+
+            const scontoInput = newRow.querySelector('input[name="sconto"]');
+            const nettoInput = newRow.querySelector('input[name="prezzo_netto"]');
+            const trasportoInput = newRow.querySelector('input[name="trasporto"]');
+            const installazioneInput = newRow.querySelector('input[name="installazione"]');
+
+            scontoInput.addEventListener('input', function() {
+                if (isUpdating) return;
+                isUpdating = true;
+                calculateTotal(this);
+                isUpdating = false;
+            });
+
+            nettoInput.addEventListener('input', function() {
+                if (isUpdating) return;
+                isUpdating = true;
+                calculateTotal(this);
+                isUpdating = false;
+            });
+
+            trasportoInput.addEventListener('input', function() {
+                if (isUpdating) return;
+                isUpdating = true;
+                calculateTotal(this);
+                isUpdating = false;
+            });
+
+            installazioneInput.addEventListener('input', function() {
+                if (isUpdating) return;
+                isUpdating = true;
+                calculateTotal(this);
+                isUpdating = false;
+            });
+        }
+
+        function addImageLinkRow(articleCode) {
+            const table = document.getElementById('imageLinkTable').getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
+            newRow.innerHTML = `
+                <td><input type="text" name="imageArticleCode" value="${articleCode}" style="width:100%;" readonly></td>
+                <td>
+                    <input type="file" name="image" accept="image/*" onchange="previewImage(this)">
+                    <img class="image-preview" style="display:none;" />
+                </td>
+                <td><input type="url" name="imageLink" style="width:100%;" placeholder="https://example.com"></td>
+                <td><button type="button" onclick="removeImageRow(this)" style="background-color:#f44336;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;">Rimuovi</button></td>
+            `;
+        }
+
+        function previewImage(input) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = input.closest('td').querySelector('.image-preview');
+                img.src = e.target.result;
+                img.style.display = 'block';
+            };
+            if(file) {
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeImageRow(button) {
+            const row = button.closest('tr');
+            row.remove();
+        }
+
+        function removeRow(button) {
+            const row = button.closest('tr');
+            const articleCode = row.querySelector('.article-code').value;
+            row.remove();
+
+            const imageLinkRows = document.querySelectorAll("#imageLinkTable tbody tr");
+            imageLinkRows.forEach((imageRow) => {
+                const codeCell = imageRow.querySelector('input[name="imageArticleCode"]');
+                if (codeCell && codeCell.value === articleCode) {
+                    imageRow.remove();
+                }
+            });
+
+            calculateTotals();
+        }
+
+        function formatEuro(value) {
+            if (!isFinite(value)) return "";
+            return value.toLocaleString("it-IT", { style:'currency', currency:'EUR' });
+        }
+
+        function formatDateEuropean(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            if (isNaN(date)) return '-';
+            const day = String(date.getDate()).padStart(2,'0');
+            const month = String(date.getMonth()+1).padStart(2,'0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        function formatNumber(value) {
+            return value.toLocaleString("it-IT", { minimumFractionDigits:2, maximumFractionDigits:2 });
+        }
+
+        function parseEuropeanFloat(value) {
+            if (!value) return 0;
+            value = value.replace(/€/g,'').replace(/\s/g,'');
+            return parseFloat(value.replace(/\./g,'').replace(',', '.'));
+        }
+
+        function calculateTotal(inputElement) {
+            if (isUpdating) return;
+            isUpdating = true;
+
+            const row = inputElement.closest('tr');
+            const priceElement = row.querySelector('.article-price');
+            const quantityElement = row.querySelector('input[name="quantita"]');
+            const discountElement = row.querySelector('input[name="sconto"]');
+            const netPriceElement = row.querySelector('.article-net-price');
+            const trasportoElement = row.querySelector('.article-trasporto');
+            const installazioneElement = row.querySelector('.article-installazione');
+            const totalPriceElement = row.querySelector('.article-total-price');
+
+            const price = parseEuropeanFloat(priceElement.value)||0;
+            const quantity = parseFloat(quantityElement.value)||0;
+            let discount = parseFloat(discountElement.value)||0;
+            let netPrice = parseEuropeanFloat(netPriceElement.value)||0;
+
+            if (inputElement.name === 'sconto') {
+                netPrice = price - (price*(discount/100));
+                netPriceElement.value = formatEuro(netPrice);
+            } else if (inputElement.classList.contains('article-net-price')) {
+                if (price!==0) {
+                    discount = ((price-netPrice)/price)*100;
+                    discount = isFinite(discount)?discount.toFixed(2):0;
+                    discountElement.value = discount;
+                } else {
+                    discountElement.value='0';
+                }
+            }
+
+            const trasporto = trasportoElement.disabled?0:parseEuropeanFloat(trasportoElement.value)||0;
+            const installazione = installazioneElement.disabled?0:parseEuropeanFloat(installazioneElement.value)||0;
+
+            const totalPrice = (netPrice+trasporto+installazione)*quantity;
+            totalPriceElement.value = formatEuro(totalPrice);
+
+            calculateTotals();
+            isUpdating = false;
+        }
+
+        function calculateTotals() {
+            let totalTrasporto=0; let totalInstallazione=0;
+            document.querySelectorAll('#itemsTable tbody tr').forEach(row=>{
+                const trasportoValue = row.querySelector('.article-trasporto').value;
+                const installazioneValue = row.querySelector('.article-installazione').value;
+
+                const trasporto = parseEuropeanFloat(trasportoValue)||0;
+                const installazione = parseEuropeanFloat(installazioneValue)||0;
+
+                totalTrasporto+=trasporto;
+                totalInstallazione+=installazione;
+            });
+
+            const installazioneSiInterno = document.getElementById('installazioneSiInterno').checked;
+            const installazioneSiEsterno = document.getElementById('installazioneSiEsterno').checked;
+            const installazioneCostoInput = document.getElementById('installazioneCosto');
+
+            if (installazioneSiInterno||installazioneSiEsterno) {
+                installazioneCostoInput.value = formatEuro(totalInstallazione);
+            } else {
+                installazioneCostoInput.value = formatEuro(0);
+            }
+
+            const portoWithCharge = document.getElementById('portoWithCharge');
+            const portoValueInput = document.getElementById('portoValue');
+            if (portoWithCharge.checked) {
+                portoValueInput.value = formatEuro(totalTrasporto);
+            } else {
+                portoValueInput.value='';
+            }
+
+            updateTotalArticlesValue();
+        }
+
+        function updateTotalArticlesValue() {
+            let total=0;
+            document.querySelectorAll('.article-total-price').forEach(totalPriceElement=>{
+                let val=parseEuropeanFloat(totalPriceElement.value)||0;
+                if(!isNaN(val)){
+                    total+=val;
+                }
+            });
+            document.getElementById('totalArticlesValue').textContent = formatEuro(total);
+        }
+
+        // RIMOSSE FUNZIONI E VARIABILI RELATIVE ALLA FIRMA
+
+        function updateTrasportoFields(){
+            const isPortoWithCharge = document.getElementById('portoWithCharge').checked;
+            document.querySelectorAll('.article-trasporto').forEach(field=>{
+                if(isPortoWithCharge){
+                    const productCode = field.closest('tr').querySelector('.article-code').value;
+                    const product = products.find(p=>p.code===productCode);
+                    if(product){
+                        field.value=formatEuro(product.trasporto);
+                    }
+                    field.disabled=false;
+                }else{
+                    field.value='';
+                    field.disabled=true;
+                }
+                calculateTotal(field);
+            });
+            calculateTotals();
+        }
+
+        function updateInstallazioneFields(){
+            const isInstallazione = document.getElementById('installazioneSiInterno').checked || document.getElementById('installazioneSiEsterno').checked;
+            document.querySelectorAll('.article-installazione').forEach(field=>{
+                if(isInstallazione){
+                    const productCode = field.closest('tr').querySelector('.article-code').value;
+                    const product = products.find(p=>p.code===productCode);
+                    if(product){
+                        field.value = formatEuro(product.installazione);
+                    }
+                    field.disabled=false;
+                }else{
+                    field.value='';
+                    field.disabled=true;
+                }
+                calculateTotal(field);
+            });
+            calculateTotals();
+        }
+
+        const installazioneCheckboxes = document.querySelectorAll('input[name="installazione"]');
+        installazioneCheckboxes.forEach(checkbox=>{
+            checkbox.addEventListener('change',function(){
+                if(this.checked){
+                    installazioneCheckboxes.forEach(cb=>{
+                        if(cb!==this) cb.checked=false;
+                    });
+                }
+                updateInstallazioneFields();
+            });
+        });
+
+        const mulettoCheckboxes = document.querySelectorAll('input[name="muletto"]');
+        mulettoCheckboxes.forEach(checkbox=>{
+            checkbox.addEventListener('change',function(){
+                if(this.checked){
+                    mulettoCheckboxes.forEach(cb=>{
+                        if(cb!==this) cb.checked=false;
+                    });
+                }
+            });
+        });
+
+        function togglePreventivo(){
+            const isPreventivo = document.getElementById('isPreventivo').checked;
+            const titleElement = document.querySelector('h2');
+            if(isPreventivo){
+                titleElement.firstChild.textContent="Preventivo";
+            }else{
+                titleElement.firstChild.textContent="Scheda Ordine";
+            }
+        }
+
+        function useTotal(){
+            const totalText=document.getElementById('totalArticlesValue').textContent;
+            const totalNumber=parseEuropeanFloat(totalText);
+            const formattedTotal=formatEuro(totalNumber);
+            document.getElementById('importo').value=formattedTotal;
+        }
+
+        document.getElementById('logoInput').addEventListener('change',function(event){
+            const file=event.target.files[0];
+            const reader=new FileReader();
+            reader.onload=function(e){
+                logoDataURL=e.target.result;
+                document.getElementById('logoPreview').src=logoDataURL;
+                document.getElementById('logoPreview').style.display='block';
+
+                const img=new Image();
+                img.src=logoDataURL;
+                img.onload=function(){
+                    logoWidth=img.naturalWidth;
+                    logoHeight=img.naturalHeight;
+                };
+            };
+            if(file){
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function calcola(){
+            let importoInput=document.getElementById("importo").value;
+            let importo=parseEuropeanFloat(importoInput);
+            if(importo===0||isNaN(importo)){
+                importo=parseEuropeanFloat(document.getElementById("totalArticlesValue").textContent);
+            }
+            let durata=parseInt(document.getElementById("durata").value);
+            let rataMensile=0;
+            let speseContratto=0;
+
+            if(importo<5001){speseContratto=75;}
+            else if(importo<10001){speseContratto=100;}
+            else if(importo<25001){speseContratto=150;}
+            else if(importo<50001){speseContratto=225;}
+            else{speseContratto=300;}
+
+            const coefficienti={
+                5000:{12:0.084167,18:0.060596,24:0.047514,36:0.033879,48:0.026723,60:0.022489},
+                15000:{12:0.083542,18:0.059999,24:0.046924,36:0.033290,48:0.026122,60:0.021874},
+                25000:{12:0.083386,18:0.059850,24:0.046777,36:0.033143,48:0.025973,60:0.021722},
+                50000:{12:0.082867,18:0.059354,24:0.046290,36:0.032658,48:0.025479,60:0.021219},
+                100000:{12:0.082867,18:0.059354,24:0.046290,36:0.032658,48:0.025479,60:0.021219}
+            };
+
+            for(let maxImporto in coefficienti){
+                if(importo<=maxImporto){
+                    rataMensile=importo*coefficienti[maxImporto][durata];
+                    break;
+                }
+            }
+
+            document.getElementById("rataMensile").textContent=formatNumber(rataMensile)+" €";
+            document.getElementById("speseContratto").textContent=formatNumber(speseContratto)+" €";
+
+            let costoGiornaliero=rataMensile/22;
+            let costoOrario=costoGiornaliero/8;
+
+            document.getElementById("costoGiornaliero").textContent=formatNumber(costoGiornaliero)+" €";
+            document.getElementById("costoOrario").textContent=formatNumber(costoOrario)+" €";
+        }
+
+        async function generatePDF(){
+            const includeSconto=document.getElementById('omitSconto').checked;
+            const includeTrasporto=document.getElementById('omitTrasporto').checked;
+            const includeInstallazione=document.getElementById('omitInstallazione').checked;
+            const includeNoleggio=document.getElementById('omitNoleggio').checked;
+            const includeNetto=document.getElementById('omitNetto').checked;
+
+            const { jsPDF } = window.jspdf;
+            const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'A4'});
+            const pageWidth=doc.internal.pageSize.getWidth();
+            const pageHeight=doc.internal.pageSize.getHeight();
+            const margin=15;
+
+            function printHeader(data){
+                doc.setFillColor(255,255,255);
+                doc.rect(0,0,pageWidth,margin+20,'F');
+                if(logoDataURL){
+                    const maxWidth=40;
+                    const maxHeight=40;
+                    let width=logoWidth;
+                    let height=logoHeight;
+                    const ratio=Math.min(maxWidth/width,maxHeight/height,1);
+                    width=width*ratio;
+                    height=height*ratio;
+                    doc.addImage(logoDataURL,'PNG',margin,margin,width,height);
+                    doc.setFontSize(16);
+                    doc.setTextColor(40);
+                    doc.text(document.getElementById('isPreventivo').checked?"Preventivo":"Scheda Ordine",margin+width+10,margin+10);
+                } else {
+                    doc.setFontSize(16);
+                    doc.setTextColor(40);
+                    doc.text(document.getElementById('isPreventivo').checked?"Preventivo":"Scheda Ordine",margin,margin+10);
+                }
+            }
+
+            function printFooter(data){
+                doc.setFontSize(8);
+                doc.setTextColor(100);
+                doc.text("I prezzi esposti si intendono sempre al netto di IVA del 22% e non includono né trasporto né installazione, salvo diversa descrizione presente nell'ordine", margin, pageHeight-10);
+            }
+
+            const didDrawPage=(data)=>{
+                printHeader(data);
+                printFooter(data);
+            };
+
+            function formatDateEuropean(dateString) {
+                if (!dateString) return '-';
+                const date = new Date(dateString);
+                if (isNaN(date)) return '-';
+                const day = String(date.getDate()).padStart(2,'0');
+                const month = String(date.getMonth()+1).padStart(2,'0');
+                const year = date.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+
+            function parseEuropeanFloat(value) {
+                if (!value) return 0;
+                value = value.replace(/€/g,'').replace(/\s/g,'');
+                return parseFloat(value.replace(/\./g,'').replace(',', '.'));
+            }
+
+            function formatEuro(value) {
+                if (!isFinite(value)) return "";
+                return value.toLocaleString("it-IT", { style:'currency', currency:'EUR' });
+            }
+
+            function formatNumber(value) {
+                return value.toLocaleString("it-IT", { minimumFractionDigits:2, maximumFractionDigits:2 });
+            }
+
+            function getUniformColumnWidths(tableHead){
+                const totalWidth=pageWidth-2*margin;
+                const columnCount=tableHead.length;
+                const columnWidth=totalWidth/columnCount;
+                let widths={};
+                tableHead.forEach((head,index)=>{
+                    widths[index]={cellWidth:columnWidth,overflow:'linebreak',halign:'center'};
+                });
+                return widths;
+            }
+
+            const orderDateValue=formatDateEuropean(document.getElementById("orderDate").value);
+            const referenceNumber=document.getElementById("referenceNumber").value;
+            const clientName=document.getElementById("clientName").value;
+            const destinationPlace=document.getElementById("destinationPlace").value||"-";
+            const paymentTerms=document.getElementById("paymentTerms").value;
+
+            let orderInfo=[
+                ["Data",orderDateValue],
+                ["Ns. riferimento",referenceNumber],
+                ["Cliente",clientName],
+                ["Luogo destinazione se diverso",destinationPlace],
+                ["Pagamento",paymentTerms]
+            ];
+
+            let trasporto=[];
+            if(document.getElementById('transportSender').checked) trasporto.push('Mittente');
+            if(document.getElementById('transportReceiver').checked) trasporto.push('Destinatario');
+            if(document.getElementById('transportCarrier').checked) trasporto.push('Vettore');
+            if(trasporto.length===0) trasporto.push('-');
+
+            let porto=[];
+            if(document.getElementById('portoFranco').checked) porto.push('Franco');
+            if(document.getElementById('portoAssigned').checked) porto.push('Assegnato');
+            if(document.getElementById('portoWithCharge').checked) porto.push('Franco c/add');
+            const portoValue=document.getElementById('portoValue').value;
+            let portoInfo=porto.join(', ')||'-';
+            if(portoValue){
+                portoInfo+=` - Valore: ${portoValue}`;
+            }
+
+            let installazione="NO";
+            const installazioneSiInterno=document.getElementById('installazioneSiInterno').checked;
+            const installazioneSiEsterno=document.getElementById('installazioneSiEsterno').checked;
+            const installazioneCostoInput=document.getElementById('installazioneCosto').value;
+            if(installazioneSiInterno){
+                installazione="SI con SERVICE INTERNO";
+            } else if(installazioneSiEsterno){
+                installazione="SI con SERVICE ESTERNO";
+            }
+            if(installazioneSiInterno||installazioneSiEsterno){
+                installazione+=` - Costo: ${installazioneCostoInput||"€0,00"}`;
+            }
+
+            let muletto="NO";
+            if(document.getElementById('mulettoSi').checked) muletto="SI";
+
+            let transportPortInstallInfo=[];
+            if(includeTrasporto) transportPortInstallInfo.push(["Trasporto",trasporto.join(', ')]);
+            else transportPortInstallInfo.push(["Trasporto","-"]);
+            transportPortInstallInfo.push(["Porto",includeTrasporto?portoInfo:"-"]);
+            transportPortInstallInfo.push(["Installazione",includeInstallazione?installazione:"-"]);
+            transportPortInstallInfo.push(["Muletto",muletto]);
+
+            doc.autoTable({
+                startY: margin+30,
+                body:orderInfo,
+                theme:'grid',
+                styles:{font:'helvetica',fontSize:10,cellPadding:5,lineWidth:0.1,lineColor:[0,0,0],overflow:'linebreak'},
+                headStyles:{fillColor:[230,230,230],textColor:[0,0,0],fontStyle:'bold'},
+                columnStyles:getUniformColumnWidths(["Campo","Valore"]),
+                margin:{top:margin+30,left:margin,right:margin},
+                tableWidth:'auto',
+                didDrawPage:didDrawPage
+            });
+
+            let finalY=doc.lastAutoTable.finalY+10;
+
+            doc.autoTable({
+                startY: finalY,
+                body:transportPortInstallInfo,
+                theme:'grid',
+                styles:{font:'helvetica',fontSize:10,cellPadding:5,lineWidth:0.1,lineColor:[0,0,0],overflow:'linebreak'},
+                headStyles:{fillColor:[230,230,230],textColor:[0,0,0],fontStyle:'bold'},
+                columnStyles:getUniformColumnWidths(["Campo","Valore"]),
+                margin:{top:10,left:margin,right:margin},
+                tableWidth:'auto',
+                didDrawPage:didDrawPage
+            });
+
+            const articoliRows=document.querySelectorAll("#itemsTable tbody tr");
+            let hasArticoli=articoliRows.length>0;
+            if(hasArticoli) {
+                doc.addPage();
+
+                let items=[];
+                let totalAmount=0;
+                articoliRows.forEach(row=>{
+                    const cells=row.querySelectorAll("input");
+                    const prezzoTotaleStr=cells[8].value.replace('.', '').replace(',', '.').replace('€','').trim();
+                    const prezzoTotale=parseFloat(prezzoTotaleStr)||0;
+                    totalAmount+=prezzoTotale;
+
+                    let item=[cells[0].value,cells[1].value,cells[2].value,cells[3].value];
+                    if(includeSconto) item.push(cells[4].value);
+                    if(includeNetto) item.push(cells[5].value);
+                    if(includeTrasporto) item.push(cells[6].value||'-');
+                    if(includeInstallazione) item.push(cells[7].value||'-');
+                    item.push(cells[8].value);
+                    item.push(formatDateEuropean(cells[9].value));
+
+                    items.push(item);
+                });
+
+                let tableHeadArticoli=["Articolo","Descrizione","Q.tà","Prezzo Unitario"];
+                if(includeSconto) tableHeadArticoli.push("Sconto %");
+                if(includeNetto) tableHeadArticoli.push("Prezzo Netto");
+                if(includeTrasporto) tableHeadArticoli.push("Trasporto");
+                if(includeInstallazione) tableHeadArticoli.push("Installazione");
+                tableHeadArticoli.push("Prezzo Totale","Data Consegna");
+
+                let articoliColumnStyles = {
+                    1: {cellWidth:80}
+                };
+
+                // Qui riduciamo la dimensione del carattere per la tabella prodotti a fontSize:7
+                doc.autoTable({
+                    startY: margin+30,
+                    head:[tableHeadArticoli],
+                    body:items,
+                    theme:'striped',
+                    styles:{font:'helvetica',fontSize:7,cellPadding:4,lineWidth:0.1,lineColor:[0,0,0],overflow:'linebreak'},
+                    headStyles:{fillColor:[230,230,230],textColor:[0,0,0],fontStyle:'bold'},
+                    margin:{top:margin,left:margin,right:margin},
+                    tableWidth:'auto',
+                    columnStyles:articoliColumnStyles,
+                    didDrawPage:didDrawPage
+                });
+
+                let finalY2=doc.lastAutoTable.finalY+10;
+                doc.setFontSize(12);
+                doc.setTextColor(40);
+                doc.text(`Totale Articoli: ${formatEuro(totalAmount)}`, margin, finalY2);
+                finalY2+=10;
+
+                const orderNote=document.getElementById("orderNote").value.trim();
+                if(orderNote){
+                    doc.setFontSize(12);
+                    doc.setTextColor(40);
+                    doc.text("Nota:", margin, finalY2);
+                    finalY2+=6;
+                    const splitText=doc.splitTextToSize(orderNote,pageWidth-2*margin);
+                    doc.setFontSize(10);
+                    doc.text(splitText, margin, finalY2);
+                    finalY2+=splitText.length*5;
+                }
+
+                const includeNoleggio=document.getElementById('omitNoleggio').checked;
+                let hasNoleggio = includeNoleggio;
+
+                if(hasNoleggio){
+                    doc.addPage();
+                    didDrawPage({pageNumber:doc.internal.getNumberOfPages()});
+                    let noleggioStartY=margin+30;
+
+                    const rataMensile=document.getElementById("rataMensile").textContent;
+                    const speseContratto=document.getElementById("speseContratto").textContent;
+                    const costoGiornaliero=document.getElementById("costoGiornaliero").textContent;
+                    const costoOrario=document.getElementById("costoOrario").textContent;
+
+                    const durataNoleggio = document.getElementById("durata").selectedOptions[0].text;
+
+                const noleggioInfo = [
+                  ["Durata", durataNoleggio],
+                  ["Rata Mensile", rataMensile],
+                  ["Spese di Contratto", speseContratto],
+                  ["Costo Giornaliero", costoGiornaliero],
+                  ["Costo Orario", costoOrario]
+                ];
+
+                    doc.autoTable({
+                        startY:noleggioStartY,
+                        head:[['Simulazione Noleggio','Valore']],
+                        body:noleggioInfo,
+                        theme:'grid',
+                        styles:{font:'helvetica',fontSize:9,cellPadding:4,lineWidth:0.1,lineColor:[0,0,0],overflow:'linebreak'},
+                        headStyles:{fillColor:[230,230,230],textColor:[0,0,0],fontStyle:'bold'},
+                        margin:{top:10,left:margin,right:margin},
+                        tableWidth:'auto',
+                        didDrawPage:didDrawPage
+                    });
+
+                    noleggioStartY=doc.lastAutoTable.finalY+10;
+                }
+
+                const imageLinkRows=document.querySelectorAll("#imageLinkTable tbody tr");
+                const hasImages=imageLinkRows.length>0;
+
+                // Non essendoci più la firma, rimuoviamo la logica relativa alla sua gestione
+                const hasSignature=false; 
+
+                if(hasImages||hasSignature){
+                    doc.addPage();
+                    didDrawPage({pageNumber:doc.internal.getNumberOfPages()});
+                    let startY3=margin+20;
+
+                    if(hasImages){
+                        let imageLinkData=[];
+                        let imagePromises=[];
+                        for(const row of imageLinkRows){
+                            const articleCode=row.querySelector('input[name="imageArticleCode"]').value;
+                            const imageInput=row.querySelector('input[name="image"]');
+                            const imageLink=row.querySelector('input[name="imageLink"]').value;
+                            if(imageInput.files[0]){
+                                const file=imageInput.files[0];
+                                const promise=new Promise((resolve)=>{
+                                    const r=new FileReader();
+                                    r.onload=function(e){
+                                        imageLinkData.push({articleCode:articleCode,imageData:e.target.result,imageLink:imageLink});
+                                        resolve();
+                                    };
+                                    r.onerror=function(){
+                                        imageLinkData.push({articleCode:articleCode,imageData:null,imageLink:imageLink});
+                                        resolve();
+                                    };
+                                    r.readAsDataURL(file);
+                                });
+                                imagePromises.push(promise);
+                            }else{
+                                imageLinkData.push({articleCode:articleCode,imageData:null,imageLink:imageLink});
+                            }
+                        }
+
+                        await Promise.all(imagePromises);
+
+                        for(const data of imageLinkData){
+                            doc.setFontSize(12);
+                            doc.setTextColor(40);
+                            doc.text(`Articolo: ${data.articleCode}`, margin, startY3);
+                            startY3+=6;
+
+                            if(data.imageData){
+                                if(startY3+65>pageHeight-margin){
+                                    doc.addPage();
+                                    didDrawPage({pageNumber:doc.internal.getNumberOfPages()});
+                                    startY3=margin+20;
+                                }
+                                await addImage(doc,data.imageData,60,60,margin,startY3);
+                                startY3+=65;
+                            }
+
+                            if(data.imageLink){
+                                doc.setFontSize(10);
+                                doc.setTextColor(0,102,204);
+                                if(startY3+10>pageHeight-margin-20){
+                                    doc.addPage();
+                                    didDrawPage({pageNumber:doc.internal.getNumberOfPages()});
+                                    startY3=margin+20;
+                                }
+                                doc.textWithLink(`Link: ${data.imageLink}`, margin, startY3,{url:data.imageLink});
+                                doc.setTextColor(0,0,0);
+                                startY3+=10;
+                            }
+
+                            startY3+=10;
+                            if(startY3>pageHeight-margin-20){
+                                doc.addPage();
+                                didDrawPage({pageNumber:doc.internal.getNumberOfPages()});
+                                startY3=margin+20;
+                            }
+                        }
+                    }
+
+                    // Non aggiungendo la firma, questo blocco non viene ripristinato
+                }
+
+            }
+
+            const isPreventivo=document.getElementById('isPreventivo').checked;
+            const fileName=isPreventivo?"Preventivo.pdf":"Scheda_Ordine.pdf";
+            doc.save(fileName);
+        }
+
+        async function addImage(doc,imageData,maxWidth,maxHeight,x,y){
+            return new Promise((resolve)=>{
+                const img=new Image();
+                img.src=imageData;
+                img.onload=()=>{
+                    let width=img.width;
+                    let height=img.height;
+                    const ratio=Math.min(maxWidth/width,maxHeight/height,1);
+                    width=width*ratio;
+                    height=height*ratio;
+                    doc.addImage(imageData,'PNG',x,y,width,height);
+                    resolve();
+                };
+                img.onerror=()=>{
+                    console.error('Errore nel caricamento dell\'immagine.');
+                    resolve();
+                };
+            });
+        }
+
+        window.addEventListener('load',function(){
+            if(!document.getElementById('portoWithCharge').checked){
+                document.querySelectorAll('.article-trasporto').forEach(field=>{
+                    field.value='';
+                    field.disabled=true;
+                });
+            }
+
+            if(!document.getElementById('installazioneSiInterno').checked && !document.getElementById('installazioneSiEsterno').checked){
+                document.querySelectorAll('.article-installazione').forEach(field=>{
+                    field.value='';
+                    field.disabled=true;
+                });
+            }
+
+            calculateTotals();
+        });
+
+        document.getElementById('portoWithCharge').addEventListener('change',function(){
+            updateTrasportoFields();
+        });
+
+        installazioneCheckboxes.forEach(checkbox=>{
+            checkbox.addEventListener('change',function(){
+                if(this.checked){
+                    installazioneCheckboxes.forEach(cb=>{
+                        if(cb!==this) cb.checked=false;
+                    });
+                }
+                updateInstallazioneFields();
+            });
+        });
+    </script>
 </body>
 </html>
