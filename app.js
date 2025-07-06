@@ -1,12 +1,13 @@
+
 let csvData = [];
 
 document.getElementById('csvFile').addEventListener('change', (e) => {
   const file = e.target.files[0];
   const reader = new FileReader();
-  reader.onload = function (event) {
+  reader.onload = (event) => {
     const text = event.target.result;
     csvData = parseCSV(text);
-    alert('CSV caricato con successo!');
+    renderProductList(csvData);
   };
   reader.readAsText(file, 'ISO-8859-1');
 });
@@ -25,81 +26,48 @@ function parseCSV(text) {
   });
 }
 
-document.getElementById('cameraInput').addEventListener('change', async (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const img = new Image();
-  img.src = URL.createObjectURL(file);
-  img.onload = async () => {
-    const canvas = document.getElementById('canvas');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0);
-
-    const result = await Tesseract.recognize(canvas, 'eng');
-    const text = result.data.text.trim();
-    const words = Array.from(new Set(text.split(/\s+|\n+/).map(w => w.trim()).filter(w => w.length > 2)));
-
-    showOCRResults(words);
-  };
-});
-
-function showOCRResults(words) {
-  const output = document.getElementById('ocrResults');
-  output.innerHTML = '<h3>Testi rilevati:</h3>';
-  words.forEach(word => {
-    const div = document.createElement('div');
-    const btn = document.createElement('button');
-    btn.textContent = 'Aggiungi a tabella';
-    btn.onclick = () => handleCode(word);
-    div.textContent = word + ' ';
-    div.appendChild(btn);
-    output.appendChild(div);
-  });
+function renderProductList(data) {
+  const container = document.getElementById('productList');
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+  container.innerHTML = '';
+  data.filter(p => p.codice.toLowerCase().includes(searchTerm) || p.descrizione.toLowerCase().includes(searchTerm))
+      .forEach(p => {
+        const div = document.createElement('div');
+        div.innerHTML = `<code>${p.codice}</code> — ${p.descrizione} <button onclick='addToTable("${p.codice}")'>+</button>`;
+        container.appendChild(div);
+      });
 }
 
-function handleCode(code) {
+document.getElementById('searchInput').addEventListener('input', () => renderProductList(csvData));
+
+function addToTable(code) {
   const prodotto = csvData.find(p => p.codice === code);
   const tbody = document.querySelector('#itemsTable tbody');
+  if (!prodotto) return;
 
-  if (prodotto) {
-    const row = tbody.insertRow();
-    const qty = 1;
-    const sconto = 0;
-    const netto = prodotto.prezzoLordo;
-    const totale = (netto + prodotto.trasporto + prodotto.installazione) * qty;
-
-    row.innerHTML = `
-      <td>${prodotto.codice}</td>
-      <td>${prodotto.descrizione}</td>
-      <td>${qty}</td>
-      <td>€${prodotto.prezzoLordo.toFixed(2)}</td>
-      <td>${sconto}%</td>
-      <td>€${netto.toFixed(2)}</td>
-      <td>€${prodotto.trasporto.toFixed(2)}</td>
-      <td>€${prodotto.installazione.toFixed(2)}</td>
-      <td>€${totale.toFixed(2)}</td>
-    `;
-  } else {
-    alert('Codice non trovato nel CSV: ' + code);
-  }
+  const row = tbody.insertRow();
+  row.innerHTML = `
+    <td>${prodotto.codice}</td>
+    <td>${prodotto.descrizione}</td>
+    <td><input type="number" value="1" onchange="recalculate(this)"/></td>
+    <td>€${prodotto.prezzoLordo.toFixed(2)}</td>
+    <td><input type="number" value="0" onchange="recalculate(this)"/>%</td>
+    <td><input type="number" value="${prodotto.prezzoLordo.toFixed(2)}" onchange="recalculate(this)"/></td>
+    <td><input type="number" value="${prodotto.trasporto.toFixed(2)}" onchange="recalculate(this)"/></td>
+    <td><input type="number" value="${prodotto.installazione.toFixed(2)}" onchange="recalculate(this)"/></td>
+    <td class="totale">€0.00</td>
+  `;
+  recalculate(row.querySelector('input'));
 }
 
-document.getElementById('searchInput').addEventListener('input', (e) => {
-  const query = e.target.value.toLowerCase();
-  const results = csvData.filter(p =>
-    p.codice?.toLowerCase().includes(query) ||
-    p.descrizione?.toLowerCase().includes(query)
-  );
-
-  const resultBox = document.getElementById('searchResults');
-  resultBox.innerHTML = '';
-  results.slice(0, 10).forEach(p => {
-    const div = document.createElement('div');
-    div.innerHTML = `<b>${p.codice}</b> – ${p.descrizione}
-      <button onclick="handleCode('${p.codice}')">+</button>`;
-    resultBox.appendChild(div);
-  });
-});
+function recalculate(input) {
+  const row = input.closest('tr');
+  const qty = parseFloat(row.cells[2].querySelector('input').value || 0);
+  const sconto = parseFloat(row.cells[4].querySelector('input').value || 0);
+  const netto = parseFloat(row.cells[5].querySelector('input').value || 0);
+  const trasporto = parseFloat(row.cells[6].querySelector('input').value || 0);
+  const installazione = parseFloat(row.cells[7].querySelector('input').value || 0);
+  const prezzoScontato = netto * (1 - sconto / 100);
+  const totale = (prezzoScontato + trasporto + installazione) * qty;
+  row.querySelector('.totale').textContent = '€' + totale.toFixed(2);
+}
