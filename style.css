@@ -1,1 +1,57 @@
-body { font-family: Arial; padding: 1rem; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ccc; padding: 0.5rem; }
+
+body {
+  font-family: 'C64 Pro', monospace;
+  background-color: #000;
+  color: #00FF00;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 100%;
+  padding: 10px;
+}
+
+h1, h2, h3, h4 {
+  color: #00FF00;
+}
+
+button, input, select, textarea {
+  font-family: 'C64 Pro', monospace;
+  font-size: 1em;
+  background-color: black;
+  color: #00FF00;
+  border: 1px solid #00FF00;
+  margin: 4px;
+  padding: 5px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 0.9em;
+}
+
+table, th, td {
+  border: 1px solid #00FF00;
+}
+
+th, td {
+  padding: 6px;
+  text-align: left;
+}
+
+@media (max-width: 600px) {
+  body {
+    font-size: 0.95em;
+  }
+
+  table, th, td {
+    font-size: 0.8em;
+  }
+
+  button, input {
+    font-size: 1em;
+  }
+}
