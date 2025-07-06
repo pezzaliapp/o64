@@ -7,6 +7,7 @@ document.getElementById('csvFile').addEventListener('change', (e) => {
   reader.onload = (event) => {
     const text = event.target.result;
     csvData = parseCSV(text);
+    populateSearch();
     alert('CSV caricato con successo!');
   };
   reader.readAsText(file, 'ISO-8859-1');
@@ -23,6 +24,33 @@ function parseCSV(text) {
       installazione: parseFloat(cols[3]?.replace(',', '.') || 0),
       trasporto: parseFloat(cols[4]?.replace(',', '.') || 0)
     };
+  });
+}
+
+function populateSearch() {
+  const searchInput = document.getElementById('searchInput');
+  searchInput.disabled = false;
+  searchInput.addEventListener('input', () => {
+    const value = searchInput.value.toLowerCase();
+    const results = csvData.filter(p =>
+      p.codice.toLowerCase().includes(value) ||
+      p.descrizione.toLowerCase().includes(value)
+    );
+    showResults(results);
+  });
+}
+
+function showResults(results) {
+  const output = document.getElementById('ocrResults');
+  output.innerHTML = '';
+  results.forEach(prod => {
+    const div = document.createElement('div');
+    const btn = document.createElement('button');
+    btn.textContent = '+';
+    btn.onclick = () => handleCode(prod.codice);
+    div.textContent = `${prod.codice} – ${prod.descrizione} `;
+    div.appendChild(btn);
+    output.appendChild(div);
   });
 }
 
@@ -63,7 +91,6 @@ function recalculateRow(row, lordo) {
 
   let sconto = parseFloat(scontoInput.value || 0);
   let netto = parseFloat(nettoInput.value || 0);
-
   const changedInput = document.activeElement;
 
   if (changedInput === scontoInput) {
