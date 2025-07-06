@@ -1,4 +1,4 @@
-/* Commodore 64 Style */
+/* Commodore 64 Style Ottimizzato */
 
 body {
   background-color: #12005b;
@@ -25,7 +25,7 @@ h1, h2 {
 input, button, select {
   font-family: 'Courier New', monospace;
   font-size: 1em;
-  padding: 0.4em;
+  padding: 0.6em;
   margin: 0.5em 0;
   border: 1px solid #00e6cc;
   background-color: #000033;
@@ -43,6 +43,8 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1em;
+  overflow-x: auto;
+  display: block;
 }
 
 table, th, td {
@@ -50,21 +52,27 @@ table, th, td {
 }
 
 th, td {
-  padding: 0.5em;
+  padding: 0.6em;
   text-align: center;
+  min-width: 90px;
+  font-size: 0.9em;
+  background-color: #000022;
+  color: #00ffcc;
+  word-break: break-word;
 }
 
 th {
   background-color: #000066;
-  color: #00ffcc;
 }
 
 td input {
-  width: 70px;
+  width: 100%;
   background-color: #000022;
   color: #00ffcc;
   border: none;
   text-align: center;
+  padding: 4px;
+  font-size: 0.9em;
 }
 
 .summary {
@@ -87,7 +95,11 @@ button {
   background-color: #001144;
   color: #00ffcc;
   font-weight: bold;
+  font-size: 1em;
+  padding: 0.6em 1.2em;
   transition: background 0.3s;
+  flex: 1 1 30%;
+  max-width: 200px;
 }
 
 button:hover {
@@ -99,4 +111,28 @@ button:hover {
   background-color: #001122;
   padding: 1em;
   border: 1px dashed #00e6cc;
+  font-size: 0.9em;
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 15px;
+  }
+
+  th, td {
+    font-size: 0.8em;
+    min-width: 80px;
+    padding: 0.4em;
+  }
+
+  td input {
+    font-size: 0.8em;
+    padding: 3px;
+  }
+
+  button {
+    font-size: 0.9em;
+    padding: 0.5em;
+    max-width: 100%;
+  }
 }
