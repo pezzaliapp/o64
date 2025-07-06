@@ -16,7 +16,6 @@
 
     <label for="searchInput">🔎 Cerca Articolo:</label>
     <input type="text" id="searchInput" placeholder="Cerca codice o descrizione">
-
     <div id="searchResults"></div>
 
     <table id="itemsTable">
@@ -47,207 +46,19 @@
       <button onclick="window.print()">🖨️ Stampa PDF</button>
       <button onclick="shareWhatsApp()">📲 Invia WhatsApp</button>
     </div>
-        <hr>
 
+    <hr>
     <h2>📷 OCR da Fotocamera</h2>
     <label for="cameraInput">Carica immagine (scontrino, codice, testo):</label>
     <input type="file" id="cameraInput" accept="image/*" capture="environment">
-
-    <canvas id="canvas" style="display:none;"></canvas>
-
     <div id="ocrResults" class="ocr-output"></div>
+  </div>
 
-  </div> <!-- chiusura .c64-wrapper -->
+  <canvas id="canvas" style="display:none;"></canvas>
 
-  <!-- Service Worker -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(reg => console.log("✅ Service Worker registrato", reg))
-        .catch(err => console.error("❌ Errore Service Worker", err));
-    }
-  </script>
-
-  <!-- Script principale -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
   <script src="app.js"></script>
 
-</body>
-</html>
-<script>
-  let csvData = [];
-
-  document.getElementById('csvFile').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      const text = event.target.result;
-      csvData = parseCSV(text);
-      alert('✅ CSV caricato con successo');
-    };
-    reader.readAsText(file, 'ISO-8859-1');
-  });
-
-  function parseCSV(text) {
-    const rows = text.split('\n').slice(1);
-    return rows.map(row => {
-      const cols = row.split(';');
-      return {
-        codice: cols[0]?.trim(),
-        descrizione: cols[1],
-        prezzoLordo: parseFloat((cols[2] || '0').replace(',', '.')),
-        installazione: parseFloat((cols[3] || '0').replace(',', '.')),
-        trasporto: parseFloat((cols[4] || '0').replace(',', '.'))
-      };
-    });
-  }
-
-  document.getElementById('searchInput').addEventListener('input', () => {
-    const query = document.getElementById('searchInput').value.toLowerCase();
-    const resultsDiv = document.getElementById('searchResults');
-    resultsDiv.innerHTML = '';
-
-    const results = csvData.filter(p =>
-      p.codice.toLowerCase().includes(query) || p.descrizione.toLowerCase().includes(query)
-    );
-
-    results.forEach(prod => {
-      const btn = document.createElement('button');
-      btn.textContent = `${prod.codice} – ${prod.descrizione}`;
-      btn.onclick = () => insertProduct(prod);
-      resultsDiv.appendChild(btn);
-    });
-  });
-
-  function insertProduct(prod) {
-    const tbody = document.querySelector('#itemsTable tbody');
-    const row = tbody.insertRow();
-
-    row.innerHTML = `
-      <td>${prod.codice}</td>
-      <td>${prod.descrizione}</td>
-      <td><input type="number" value="1" min="1" onchange="recalc(this)"></td>
-      <td>€${prod.prezzoLordo.toFixed(2)}</td>
-      <td><input type="number" value="0" min="0" max="100" onchange="recalc(this)">%</td>
-      <td><input type="number" value="${prod.prezzoLordo.toFixed(2)}" onchange="recalc(this)"></td>
-      <td><input type="number" value="${prod.trasporto.toFixed(2)}" onchange="recalc(this)"></td>
-      <td><input type="number" value="${prod.installazione.toFixed(2)}" onchange="recalc(this)"></td>
-      <td class="tot">€0.00</td>
-      <td><button onclick="this.closest('tr').remove(); updateTotals();">❌</button></td>
-    `;
-    recalc(row);
-  }
-
-  function recalc(input) {
-    const row = input.closest('tr');
-    const qty = parseFloat(row.cells[2].querySelector('input').value);
-    const scontoInput = row.cells[4].querySelector('input');
-    const nettoInput = row.cells[5].querySelector('input');
-
-    const lordo = parseFloat(row.cells[3].innerText.replace('€', ''));
-    const trasporto = parseFloat(row.cells[6].querySelector('input').value);
-    const installazione = parseFloat(row.cells[7].querySelector('input').value);
-
-    let sconto = parseFloat(scontoInput.value);
-    let netto = parseFloat(nettoInput.value);
-
-    if (input === scontoInput) {
-      netto = lordo * (1 - sconto / 100);
-      nettoInput.value = netto.toFixed(2);
-    } else if (input === nettoInput) {
-      sconto = 100 * (1 - netto / lordo);
-      scontoInput.value = sconto.toFixed(1);
-    }
-
-    const totale = qty * (netto + trasporto + installazione);
-    row.querySelector('.tot').innerText = '€' + totale.toFixed(2);
-    updateTotals();
-  }
-
-  function updateTotals() {
-    let totale = 0;
-    let netto = 0;
-    document.querySelectorAll('#itemsTable tbody tr').forEach(row => {
-      const qty = parseFloat(row.cells[2].querySelector('input').value);
-      const nettoVal = parseFloat(row.cells[5].querySelector('input').value);
-      const trasporto = parseFloat(row.cells[6].querySelector('input').value);
-      const installazione = parseFloat(row.cells[7].querySelector('input').value);
-      totale += qty * (nettoVal + trasporto + installazione);
-      netto += qty * nettoVal;
-    });
-    document.getElementById('totalSum').innerText = totale.toFixed(2);
-    document.getElementById('nettoSum').innerText = netto.toFixed(2);
-  }
-
-  document.getElementById('cameraInput').addEventListener('change', async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const img = new Image();
-    img.src = URL.createObjectURL(file);
-    img.onload = async () => {
-      const canvas = document.getElementById('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-
-      const result = await Tesseract.recognize(canvas, 'eng');
-      const text = result.data.text.trim();
-      const words = Array.from(new Set(text.split(/\s+|\n+/).map(w => w.trim()).filter(w => w.length > 2)));
-
-      const output = document.getElementById('ocrResults');
-      output.innerHTML = '<h3>📎 Codici rilevati:</h3>';
-      words.forEach(word => {
-        const div = document.createElement('div');
-        const btn = document.createElement('button');
-        btn.textContent = '➕';
-        btn.onclick = () => {
-          const prodotto = csvData.find(p => p.codice === word);
-          if (prodotto) insertProduct(prodotto);
-          else alert('❌ Codice non trovato: ' + word);
-        };
-        div.textContent = word + ' ';
-        div.appendChild(btn);
-        output.appendChild(div);
-      });
-    };
-  });
-
-  function downloadTXT() {
-    let txt = 'Codice;Descrizione;Qta;Lordo;Sconto;Netto;Trasp.;Inst.;Totale\n';
-    document.querySelectorAll('#itemsTable tbody tr').forEach(row => {
-      const cells = row.querySelectorAll('td');
-      const codice = cells[0].innerText;
-      const descr = cells[1].innerText;
-      const qty = cells[2].querySelector('input').value;
-      const lordo = cells[3].innerText.replace('€', '');
-      const sconto = cells[4].querySelector('input').value;
-      const netto = cells[5].querySelector('input').value;
-      const trasp = cells[6].querySelector('input').value;
-      const inst = cells[7].querySelector('input').value;
-      const tot = cells[8].innerText.replace('€', '');
-      txt += `${codice};${descr};${qty};${lordo};${sconto};${netto};${trasp};${inst};${tot}\n`;
-    });
-
-    const blob = new Blob([txt], { type: 'text/plain' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'schedaordine.txt';
-    a.click();
-  }
-
-  function shareWhatsApp() {
-    const msg = `Totale Ordine: €${document.getElementById('totalSum').innerText}\nNetto: €${document.getElementById('nettoSum').innerText}`;
-    const encoded = encodeURIComponent(msg);
-    window.open(`https://wa.me/?text=${encoded}`, '_blank');
-  }
-</script>
-  <!-- Tesseract OCR & Canvas -->
-  <canvas id="canvas" style="display:none;"></canvas>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
-
-  <!-- PWA Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
