@@ -1,28 +1,102 @@
+/* Commodore 64 Style */
 
 body {
-  background-color: black;
-  color: #00FF00;
-  font-family: 'VT323', monospace;
-  font-size: 18px;
-  margin: 10px;
+  background-color: #12005b;
+  color: #00ff96;
+  font-family: 'Courier New', monospace;
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
 }
 
-input, button {
-  background-color: black;
-  color: #00FF00;
-  border: 1px solid #00FF00;
-  font-family: 'VT323', monospace;
-  padding: 4px;
+.c64-wrapper {
+  padding: 1em;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+h1, h2 {
+  text-align: center;
+  color: #00e6cc;
+  text-shadow: 0 0 4px #00b3b3;
+  margin-bottom: 1em;
+}
+
+input, button, select {
+  font-family: 'Courier New', monospace;
+  font-size: 1em;
+  padding: 0.4em;
+  margin: 0.5em 0;
+  border: 1px solid #00e6cc;
+  background-color: #000033;
+  color: #00ffcc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input[type="file"] {
+  color: #fff;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
+  margin-top: 1em;
+}
+
+table, th, td {
+  border: 1px solid #00b3b3;
 }
 
 th, td {
-  border: 1px solid #00FF00;
-  padding: 4px;
-  text-align: left;
+  padding: 0.5em;
+  text-align: center;
+}
+
+th {
+  background-color: #000066;
+  color: #00ffcc;
+}
+
+td input {
+  width: 70px;
+  background-color: #000022;
+  color: #00ffcc;
+  border: none;
+  text-align: center;
+}
+
+.summary {
+  margin-top: 1em;
+  text-align: right;
+  font-size: 1.2em;
+}
+
+.buttons {
+  margin-top: 1.5em;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+  justify-content: center;
+}
+
+button {
+  cursor: pointer;
+  border: 1px solid #00e6cc;
+  background-color: #001144;
+  color: #00ffcc;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background-color: #002266;
+}
+
+.ocr-output {
+  margin-top: 1em;
+  background-color: #001122;
+  padding: 1em;
+  border: 1px dashed #00e6cc;
 }
