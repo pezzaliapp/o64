@@ -1,1 +1,68 @@
-<!-- Versione completa in stile C64 con funzionalità professionali -->
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>O64 – Scheda Ordine</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body {
+      background-color: black;
+      color: #00FF00;
+      font-family: monospace;
+      padding: 1em;
+    }
+    input, button {
+      background: black;
+      color: #00FF00;
+      border: 1px solid #00FF00;
+      font-family: monospace;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1em;
+    }
+    th, td {
+      border: 1px solid #00FF00;
+      padding: 4px;
+      text-align: left;
+    }
+    input[type="number"] {
+      width: 60px;
+    }
+  </style>
+</head>
+<body>
+  <h1>O64 – SCHEDA ORDINE</h1>
+  <p>📁 Carica listino CSV:
+    <input type="file" id="csvFile">
+  </p>
+  <p>📸 Scatta o carica immagine codice:
+    <input type="file" id="cameraInput" accept="image/*">
+  </p>
+  <p>🔍 <label for="search">Cerca codice o descrizione:</label>
+    <input type="text" id="search">
+  </p>
+  <div id="ocrResults"></div>
+  <table id="itemsTable">
+    <thead>
+      <tr>
+        <th>Codice</th>
+        <th>Descrizione</th>
+        <th>Q.tà</th>
+        <th>Lordo</th>
+        <th>Sconto</th>
+        <th>Netto</th>
+        <th>Trasp.</th>
+        <th>Inst.</th>
+        <th>Totale</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <canvas id="canvas" style="display:none;"></canvas>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
