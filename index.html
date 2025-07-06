@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>o64 – Scheda Ordine</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    @font-face {
+      font-family: 'C64';
+      src: url('C64_Pro_Mono.ttf') format('truetype');
+    }
+    body {
+      margin: 0;
+      padding: 1em;
+      font-family: 'C64', monospace;
+      background-color: #000;
+      color: #00FF00;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: left;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background-color: #000;
+      border: 2px solid #00FF00;
+      padding: 1rem;
+      box-shadow: 0 0 10px #0f0;
+    }
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+    }
+    p, li {
+      font-size: 1rem;
+      line-height: 1.4;
+      margin-bottom: 0.6rem;
+    }
+    .install-button {
+      margin-top: 1rem;
+      font-family: 'C64', monospace;
+      background-color: #000;
+      border: 2px solid #00FF00;
+      color: #00FF00;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .install-button:hover {
+      background-color: #00FF00;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Scheda Ordine – PWA C64</h1>
+    <p>READY.</p>
+    <p>Benvenuto nel sistema scheda ordine.<br>
+    Questa app funziona anche offline.</p>
+    <p>ISTRUZIONI PER INSTALLARE:</p>
+    <ul>
+      <li><b>Mobile:</b> Menu → "Aggiungi a Home"</li>
+      <li><b>Desktop:</b> Icona nella barra indirizzi</li>
+    </ul>
+    <p>DIGITA <code>RUN</code> PER AVVIARE</p>
+    <button class="install-button" onclick="openApp()">RUN</button>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+      .then(registration => {
+        console.log('✅ Service Worker registrato:', registration.scope);
+      })
+      .catch(error => {
+        console.error('❌ Errore Service Worker:', error);
+      });
+    }
+
+    function openApp() {
+      window.location.href = "schedaordine.html";
+    }
+  </script>
+</body>
+</html>
