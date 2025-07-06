@@ -86,3 +86,20 @@ function handleCode(code) {
     alert('Codice non trovato nel CSV: ' + code);
   }
 }
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase();
+  const results = csvData.filter(p =>
+    p.codice?.toLowerCase().includes(query) ||
+    p.descrizione?.toLowerCase().includes(query)
+  );
+
+  const resultBox = document.getElementById('searchResults');
+  resultBox.innerHTML = '';
+  results.slice(0, 10).forEach(p => {
+    const div = document.createElement('div');
+    div.innerHTML = `<b>${p.codice}</b> – ${p.descrizione}
+      <button onclick="handleCode('${p.codice}')">+</button>`;
+    resultBox.appendChild(div);
+  });
+});
