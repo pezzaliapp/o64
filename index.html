@@ -1,29 +1,45 @@
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>O64 – Scheda Ordine</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>o64 – Scheda Ordine</title>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h1>🟩 O64 — SCHEDA ORDINE</h1>
-  <input type="file" id="csvFile" accept=".csv">
-  <input type="text" id="searchBox" placeholder="🔎 Cerca codice o descrizione">
-  <div id="productList"></div>
-  <table id="orderTable">
-    <thead>
-      <tr>
-        <th>Codice</th><th>Descrizione</th><th>Q.tà</th>
-        <th>Lordo</th><th>Sconto</th><th>Netto</th>
-        <th>Trasp.</th><th>Inst.</th><th>Totale</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div class="c64-wrapper">
+    <h1>o64 – Scheda Ordine</h1>
+
+    <input type="file" id="csvFile" accept=".csv">
+    <br><br>
+
+    <input type="text" id="searchInput" placeholder="Cerca prodotto...">
+    <div id="searchResults"></div>
+
+    <table id="itemsTable">
+      <thead>
+        <tr>
+          <th>Codice</th>
+          <th>Descrizione</th>
+          <th>Q.tà</th>
+          <th>Lordo</th>
+          <th>Sconto%</th>
+          <th>Netto</th>
+          <th>Trasporto</th>
+          <th>Installazione</th>
+          <th>Totale</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <br>
+    <button onclick="generatePDF()">📄 PDF</button>
+    <button onclick="generateTXT()">📁 TXT</button>
+    <button onclick="shareWhatsApp()">📲 WhatsApp</button>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>
