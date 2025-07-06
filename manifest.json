@@ -1,21 +1,21 @@
 {
-    "name": "Scheda Ordine",
-    "short_name": "Ordine",
-    "start_url": "./index.html",
-    "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#4CAF50",
-    "description": "Una PWA per creare schede ordine offline",
-    "icons": [
-        {
-            "src": "icons/icon-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "icons/icon-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
-    ]
+  "name": "o64 – Scheda Ordine Retro",
+  "short_name": "o64",
+  "start_url": "schedaordine.html",
+  "display": "standalone",
+  "background_color": "#12005b",
+  "theme_color": "#00ff96",
+  "description": "PWA stile Commodore 64 per la gestione dinamica di schede ordine, OCR, PDF e WhatsApp.",
+  "icons": [
+    {
+      "src": "icon/o64-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon/o64-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
 }
