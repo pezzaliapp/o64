@@ -3,9 +3,7 @@ self.addEventListener('install', e => {
     caches.open('o64-cache').then(cache => {
       return cache.addAll([
         './',
-        './index.html',
         './schedaordine.html',
-        './app.js',
         './manifest.json',
         './C64_Pro_Mono.ttf',
         './o64-192.png',

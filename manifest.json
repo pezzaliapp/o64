@@ -1,7 +1,7 @@
 {
   "name": "o64",
   "short_name": "o64",
-  "start_url": "./index.html",
+  "start_url": "./schedaordine.html",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#00FF00",
