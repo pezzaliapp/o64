@@ -1,21 +1,20 @@
 {
-  "name": "o64 – Scheda Ordine Retro",
+  "name": "o64 – Scheda Ordine",
   "short_name": "o64",
-  "start_url": "schedaordine.html",
+  "start_url": "./schedaordine.html",
   "display": "standalone",
-  "background_color": "#12005b",
-  "theme_color": "#00ff96",
-  "description": "PWA stile Commodore 64 per la gestione dinamica di schede ordine, OCR, PDF e WhatsApp.",
+  "background_color": "#000000",
+  "theme_color": "#00FF00",
   "icons": [
     {
       "src": "icon/o64-192.png",
-      "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "type": "image/png"
     },
     {
       "src": "icon/o64-512.png",
-      "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ]
 }
