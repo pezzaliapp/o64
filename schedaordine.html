@@ -1,68 +1,155 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>o64 - Scheda Ordine</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
+  <title>o64 – Scheda Ordine</title>
   <link rel="manifest" href="manifest.json">
   <style>
     body {
-      background: black;
-      color: #00ff00;
-      font-family: "Courier New", monospace;
+      background-color: black;
+      color: lime;
+      font-family: 'Courier New', monospace;
       padding: 20px;
     }
-    h1, h2 { text-align: center; }
-    label, select, input, button { margin: 5px 0; display: block; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; }
+    h1 {
+      text-align: center;
+      font-size: 2em;
+      color: #00FF00;
+    }
+    select, input, button {
+      font-family: 'Courier New', monospace;
+      background-color: black;
+      color: lime;
+      border: 1px solid lime;
+      padding: 5px;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
+      margin-top: 15px;
     }
     th, td {
-      border: 1px solid #00ff00;
-      padding: 4px;
+      border: 1px solid lime;
+      padding: 8px;
       text-align: center;
+    }
+    .buttons {
+      text-align: center;
+      margin-top: 20px;
     }
     .buttons button {
-      width: auto;
       margin: 5px;
-      padding: 5px 10px;
-    }
-    .ocr-output div {
-      margin-bottom: 8px;
-    }
-    .summary {
-      margin-top: 20px;
-      text-align: center;
     }
   </style>
 </head>
 <body>
-  <h1>o64 - Scheda Ordine</h1>
+  <h1>o64 – Scheda Ordine</h1>
 
-  <label for="csvFile">📁 Carica Listino CSV:</label>
   <input type="file" id="csvFile" accept=".csv">
-
-  <label for="selectArticolo">📦 Seleziona Articolo:</label>
-  <select id="selectArticolo">
-    <option value="">— Seleziona dal listino —</option>
+  <br><br>
+  <select id="productSelect">
+    <option value="">Seleziona un articolo</option>
   </select>
 
-  <table id="itemsTable">
+  <table>
     <thead>
       <tr>
-        <th>Codice</th><th>Descrizione</th><th>Q.tà</th><th>Lordo</th><th>Sconto%</th><th>Netto</th><th>Trasporto</th><th>Installazione</th><th>Totale</th><th>X</th>
+        <th>Codice</th><th>Descrizione</th><th>Q.tà</th><th>Lordo</th><th>Sconto%</th><th>Netto</th><th>Trasporto</th><th>Installazione</th><th>Totale</th>
       </tr>
     </thead>
-    <tbody></tbody>
+    <tbody id="orderTable">
+    </tbody>
   </table>
 
-  <div class="summary">
-    <p>Totale Netto: €<span id="nettoSum">0,00</span></p>
-    <p>Totale Ordine: €<span id="totalSum">0,00</span></p>
+  <div class="buttons">
+    <button onclick="generaPDF()">📄 PDF</button>
+    <button onclick="generaTXT()">📄 TXT</button>
+    <button onclick="inviaWhatsApp()">📲 WhatsApp</button>
   </div>
 
-  <div class="buttons" style="text-align:center">
-    <button onclick="downloadTXT()">
+  <script>
+    document.getElementById('csvFile').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const lines = event.target.result.split('\n');
+        lines.forEach(line => {
+          const cells = line.split(';');
+          if (cells.length >= 3) {
+            const option = document.createElement('option');
+            option.value = cells.join('|');
+            option.text = cells[0] + ' – ' + cells[1];
+            document.getElementById('productSelect').appendChild(option);
+          }
+        });
+      };
+      reader.readAsText(file);
+    });
+
+    document.getElementById('productSelect').addEventListener('change', function() {
+      const value = this.value;
+      if (!value) return;
+      const [codice, descrizione, lordoRaw] = value.split('|');
+      const lordo = parseFloat(lordoRaw.replace('€', '').replace(',', '.'));
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${codice}</td>
+        <td>${descrizione}</td>
+        <td><input type="number" value="1" onchange="calcolaTotale(this)"></td>
+        <td>${lordo.toFixed(2)}</td>
+        <td><input type="number" value="0" onchange="calcolaTotale(this)"></td>
+        <td>${lordo.toFixed(2)}</td>
+        <td><input type="number" value="0" onchange="calcolaTotale(this)"></td>
+        <td><input type="number" value="0" onchange="calcolaTotale(this)"></td>
+        <td class="totale">${lordo.toFixed(2)}</td>
+      `;
+      document.getElementById('orderTable').appendChild(row);
+    });
+
+    function calcolaTotale(input) {
+      const row = input.closest('tr');
+      const qta = parseFloat(row.children[2].children[0].value);
+      const lordo = parseFloat(row.children[3].textContent);
+      const sconto = parseFloat(row.children[4].children[0].value);
+      const trasporto = parseFloat(row.children[6].children[0].value);
+      const installazione = parseFloat(row.children[7].children[0].value);
+      const netto = lordo - (lordo * sconto / 100);
+      row.children[5].textContent = netto.toFixed(2);
+      const totale = (netto + trasporto + installazione) * qta;
+      row.children[8].textContent = totale.toFixed(2);
+    }
+
+    function generaTXT() {
+      let text = 'Scheda Ordine\n';
+      const rows = document.querySelectorAll('#orderTable tr');
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        text += Array.from(cells).map(td => td.innerText).join(' | ') + '\n';
+      });
+      const blob = new Blob([text], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'ordine.txt';
+      a.click();
+    }
+
+    function inviaWhatsApp() {
+      let text = '📦 *Scheda Ordine*%0A';
+      const rows = document.querySelectorAll('#orderTable tr');
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        const riga = `• ${cells[0].innerText.trim()} – ${cells[1].innerText.trim()}%0A   Q.tà: ${cells[2].querySelector('input').value} | Netto: €${cells[5].innerText} | Totale: €${cells[8].innerText}%0A`;
+        text += riga;
+      });
+      window.open(`https://wa.me/?text=${text}`, '_blank');
+    }
+
+    function generaPDF() {
+      window.print();
+    }
+  </script>
+</body>
+</html>
