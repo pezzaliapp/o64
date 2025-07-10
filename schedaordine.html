@@ -1,154 +1,154 @@
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>o64 – Scheda Ordine</title>
-  <link rel="manifest" href="manifest.json">
   <style>
     body {
-      background-color: black;
-      color: lime;
-      font-family: 'Courier New', monospace;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      font-size: 2em;
+      background: black;
       color: #00FF00;
-    }
-    select, input, button {
       font-family: 'Courier New', monospace;
-      background-color: black;
-      color: lime;
-      border: 1px solid lime;
-      padding: 5px;
+      text-align: center;
+    }
+    input, select, button {
+      font-family: inherit;
+      background: black;
+      color: #00FF00;
+      border: 1px solid #00FF00;
+      padding: 4px;
+      margin: 4px;
     }
     table {
-      width: 100%;
+      margin: 10px auto;
       border-collapse: collapse;
-      margin-top: 15px;
+      width: 95%;
     }
     th, td {
-      border: 1px solid lime;
-      padding: 8px;
-      text-align: center;
+      border: 1px solid #00FF00;
+      padding: 4px;
     }
-    .buttons {
-      text-align: center;
-      margin-top: 20px;
-    }
-    .buttons button {
-      margin: 5px;
+    .btn {
+      display: inline-block;
+      margin: 6px;
     }
   </style>
 </head>
 <body>
   <h1>o64 – Scheda Ordine</h1>
+  <input type="file" id="csvFile" accept=".csv" />
+  <br>
+  <input type="text" id="search" placeholder="Cerca..." />
+  <div id="listino"></div>
 
-  <input type="file" id="csvFile" accept=".csv">
-  <br><br>
-  <select id="productSelect">
-    <option value="">Seleziona un articolo</option>
-  </select>
-
-  <table>
+  <table id="order-table">
     <thead>
       <tr>
-        <th>Codice</th><th>Descrizione</th><th>Q.tà</th><th>Lordo</th><th>Sconto%</th><th>Netto</th><th>Trasporto</th><th>Installazione</th><th>Totale</th>
+        <th>Codice</th><th>Descrizione</th><th>Q.tà</th><th>Lordo</th><th>Sconto%</th>
+        <th>Netto</th><th>Trasporto</th><th>Installazione</th><th>Totale</th>
       </tr>
     </thead>
-    <tbody id="orderTable">
-    </tbody>
+    <tbody></tbody>
   </table>
 
-  <div class="buttons">
+  <div class="btn">
     <button onclick="generaPDF()">📄 PDF</button>
-    <button onclick="generaTXT()">📄 TXT</button>
-    <button onclick="inviaWhatsApp()">📲 WhatsApp</button>
+    <button onclick="generaTXT()">🖹 TXT</button>
+    <button onclick="generaWhatsApp()">🟢 WhatsApp</button>
   </div>
 
   <script>
-    document.getElementById('csvFile').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
+    let prodotti = [];
+
+    document.getElementById('csvFile').addEventListener('change', function (e) {
       const reader = new FileReader();
-      reader.onload = function(event) {
-        const lines = event.target.result.split('\n');
-        lines.forEach(line => {
-          const cells = line.split(';');
-          if (cells.length >= 3) {
-            const option = document.createElement('option');
-            option.value = cells.join('|');
-            option.text = cells[0] + ' – ' + cells[1];
-            document.getElementById('productSelect').appendChild(option);
-          }
+      reader.onload = function () {
+        const lines = reader.result.split('\n').slice(1);
+        prodotti = lines.map(line => {
+          const [codice, descrizione, lordo, trasporto, installazione] = line.split(';');
+          return { codice, descrizione, lordo, trasporto, installazione };
         });
+        aggiornaListino();
       };
-      reader.readAsText(file);
+      reader.readAsText(e.target.files[0]);
     });
 
-    document.getElementById('productSelect').addEventListener('change', function() {
-      const value = this.value;
-      if (!value) return;
-      const [codice, descrizione, lordoRaw] = value.split('|');
-      const lordo = parseFloat(lordoRaw.replace('€', '').replace(',', '.'));
-      const row = document.createElement('tr');
+    document.getElementById('search').addEventListener('input', aggiornaListino);
+
+    function aggiornaListino() {
+      const query = document.getElementById('search').value.toLowerCase();
+      const listino = document.getElementById('listino');
+      listino.innerHTML = '';
+      prodotti.filter(p => p.descrizione?.toLowerCase().includes(query)).forEach(p => {
+        const btn = document.createElement('button');
+        btn.className = 'item-button';
+        btn.textContent = `${p.codice} – ${p.descrizione}`;
+        btn.dataset.info = `${p.codice}|${p.descrizione}|${p.lordo}|${p.trasporto}|${p.installazione}`;
+        btn.onclick = inserisciRiga;
+        listino.appendChild(btn);
+      });
+    }
+
+    function inserisciRiga(e) {
+      const [codice, descrizione, lordo, trasporto, installazione] = e.target.dataset.info.split('|');
+      const tbody = document.getElementById('order-table').getElementsByTagName('tbody')[0];
+      const row = tbody.insertRow();
       row.innerHTML = `
         <td>${codice}</td>
         <td>${descrizione}</td>
-        <td><input type="number" value="1" onchange="calcolaTotale(this)"></td>
-        <td>${lordo.toFixed(2)}</td>
-        <td><input type="number" value="0" onchange="calcolaTotale(this)"></td>
-        <td>${lordo.toFixed(2)}</td>
-        <td><input type="number" value="0" onchange="calcolaTotale(this)"></td>
-        <td><input type="number" value="0" onchange="calcolaTotale(this)"></td>
-        <td class="totale">${lordo.toFixed(2)}</td>
+        <td><input type="number" class="qta-input" value="1" min="1"></td>
+        <td>€${parseFloat(lordo).toLocaleString('it-IT')}</td>
+        <td><input type="number" class="sconto-input" value="0" min="0" max="100"></td>
+        <td class="netto-cell">${parseFloat(lordo).toFixed(2)}</td>
+        <td><input type="number" class="trasporto-input" value="${trasporto}"></td>
+        <td><input type="number" class="installazione-input" value="${installazione}"></td>
+        <td class="totale-cell">${(parseFloat(lordo)+parseFloat(trasporto)+parseFloat(installazione)).toFixed(2)}</td>
       `;
-      document.getElementById('orderTable').appendChild(row);
-    });
+      aggiornaEventi();
+    }
 
-    function calcolaTotale(input) {
-      const row = input.closest('tr');
-      const qta = parseFloat(row.children[2].children[0].value);
-      const lordo = parseFloat(row.children[3].textContent);
-      const sconto = parseFloat(row.children[4].children[0].value);
-      const trasporto = parseFloat(row.children[6].children[0].value);
-      const installazione = parseFloat(row.children[7].children[0].value);
-      const netto = lordo - (lordo * sconto / 100);
-      row.children[5].textContent = netto.toFixed(2);
-      const totale = (netto + trasporto + installazione) * qta;
-      row.children[8].textContent = totale.toFixed(2);
+    function aggiornaEventi() {
+      document.querySelectorAll('.qta-input, .sconto-input, .trasporto-input, .installazione-input').forEach(input => {
+        input.addEventListener('input', () => {
+          const row = input.closest('tr');
+          const qta = parseFloat(row.querySelector('.qta-input').value) || 0;
+          const lordo = parseFloat(row.cells[3].textContent.replace('€', '').replace('.', '').replace(',', '.')) || 0;
+          const sconto = parseFloat(row.querySelector('.sconto-input').value) || 0;
+          const trasporto = parseFloat(row.querySelector('.trasporto-input').value) || 0;
+          const installazione = parseFloat(row.querySelector('.installazione-input').value) || 0;
+          const netto = lordo * (1 - sconto / 100);
+          const totale = (netto * qta) + trasporto + installazione;
+          row.querySelector('.netto-cell').textContent = netto.toFixed(2);
+          row.querySelector('.totale-cell').textContent = totale.toFixed(2);
+        });
+      });
     }
 
     function generaTXT() {
-      let text = 'Scheda Ordine\n';
-      const rows = document.querySelectorAll('#orderTable tr');
-      rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        text += Array.from(cells).map(td => td.innerText).join(' | ') + '\n';
+      let output = "Scheda Ordine:\n\n";
+      document.querySelectorAll('#order-table tbody tr').forEach(row => {
+        const celle = Array.from(row.cells).map(td => td.innerText || td.querySelector('input')?.value);
+        output += celle.join(' | ') + '\n';
       });
-      const blob = new Blob([text], { type: 'text/plain' });
-      const a = document.createElement('a');
+      const blob = new Blob([output], { type: "text/plain" });
+      const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = 'ordine.txt';
+      a.download = "ordine.txt";
       a.click();
-    }
-
-    function inviaWhatsApp() {
-      let text = '📦 *Scheda Ordine*%0A';
-      const rows = document.querySelectorAll('#orderTable tr');
-      rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        const riga = `• ${cells[0].innerText.trim()} – ${cells[1].innerText.trim()}%0A   Q.tà: ${cells[2].querySelector('input').value} | Netto: €${cells[5].innerText} | Totale: €${cells[8].innerText}%0A`;
-        text += riga;
-      });
-      window.open(`https://wa.me/?text=${text}`, '_blank');
     }
 
     function generaPDF() {
       window.print();
+    }
+
+    function generaWhatsApp() {
+      let testo = "*Scheda Ordine:*\n";
+      document.querySelectorAll('#order-table tbody tr').forEach(row => {
+        const celle = Array.from(row.cells).map(td => td.innerText || td.querySelector('input')?.value);
+        testo += celle.slice(0, 2).join(" - ") + "\nTotale: €" + celle[8] + "\n\n";
+      });
+      const url = `https://wa.me/?text=${encodeURIComponent(testo)}`;
+      window.open(url, '_blank');
     }
   </script>
 </body>
