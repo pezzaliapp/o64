@@ -2,12 +2,67 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Scheda Ordine - o64</title>
+  <title>o64 - Scheda Ordine</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
+  <style>
+    body {
+      background: black;
+      color: #00ff00;
+      font-family: "Courier New", monospace;
+      padding: 20px;
+    }
+    h1, h2 { text-align: center; }
+    label, select, input, button { margin: 5px 0; display: block; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #00ff00;
+      padding: 4px;
+      text-align: center;
+    }
+    .buttons button {
+      width: auto;
+      margin: 5px;
+      padding: 5px 10px;
+    }
+    .ocr-output div {
+      margin-bottom: 8px;
+    }
+    .summary {
+      margin-top: 20px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-  <!-- HTML content omitted for brevity -->
-</body>
-</html>
+  <h1>o64 - Scheda Ordine</h1>
+
+  <label for="csvFile">📁 Carica Listino CSV:</label>
+  <input type="file" id="csvFile" accept=".csv">
+
+  <label for="selectArticolo">📦 Seleziona Articolo:</label>
+  <select id="selectArticolo">
+    <option value="">— Seleziona dal listino —</option>
+  </select>
+
+  <table id="itemsTable">
+    <thead>
+      <tr>
+        <th>Codice</th><th>Descrizione</th><th>Q.tà</th><th>Lordo</th><th>Sconto%</th><th>Netto</th><th>Trasporto</th><th>Installazione</th><th>Totale</th><th>X</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="summary">
+    <p>Totale Netto: €<span id="nettoSum">0,00</span></p>
+    <p>Totale Ordine: €<span id="totalSum">0,00</span></p>
+  </div>
+
+  <div class="buttons" style="text-align:center">
+    <button onclick="downloadTXT()">
